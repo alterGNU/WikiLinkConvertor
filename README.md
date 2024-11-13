@@ -77,4 +77,4 @@ tree ~/path_to/tutu
     - argV[1]:folder **IS NOT A FOLDER**
     - argV[1]:folder **IS NOT** a git repo _(no .git/)_
     - argV[1]:folder **DO NOT HAVE A REMOTE URL** _(no url set)_
-    - argV[1]:folder **THE REMOTE URL IS NOT A GITHUB WIKI REPO** _(repo do not end with tutu.wiki.git)_
+    - argV[1]:folder **THE REMOTE URL IS NOT A GITHUB WIKI REPO** _(repo do not end with *.wiki.git)_
