@@ -26,7 +26,7 @@ V0="\033[0;32m"  # START GREEN
 M0="\033[0;33m"  # START BROWN
 # -[ PATH ]-----------------------------------------------------------------------------------------
 ABS_PATH=$(realpath ${2})
-FOLDNAME=$(basename ${2})
+FOLDNAME=$(basename ${ABS_PATH})
 
 # =[ FCTS ]=========================================================================================
 # -[ USAGE ]----------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ replace_links()
 # =[ CHECK ARGUMENTS ]==============================================================================
 [[ ${#} -ne 2 ]] && usage "Wrong nb of argument, script need 2args and ${#} was given" 2
 [[ ! -d ${ABS_PATH} ]] && usage "Last arg \"${FOLDNAME}\" is not a folder" 3
-[[ ! -d "${ABS_PATH}/.git" ]] && usage "Last arg \"${FOLDNAME}\" is not git repo." 4
+[[ ( ! -d "${ABS_PATH}/.git" ) && ( ! -f "${ABS_PATH}/.git" ) ]] && usage "arg \"${FOLDNAME}\" is not git repo." 4
 # =[ SET MODE ]=====================================================================================
 case "${1}" in
     -g|--github) GITMODE="ok" ;; 
@@ -132,7 +132,7 @@ esac
 # =[ GET_URL ]======================================================================================
 URL=$(get_url)
 [[ -z "${URL}" ]] && usage "git repo \"${FOLDNAME}\" has no remote " 6
-[[ "${URL}" == "0" ]] && usage "git repo \"${FOLDNAME}\" is not a github wiki repo" 6
+[[ "${URL}" == "0" ]] && usage "git repo \"${FOLDNAME}\" is not a github wiki repo" 7
 # =[ SEARCH FILES FOR LINKS ]=======================================================================
 echo "--------------------------"
 for file in $(ls ${ABS_PATH});do
