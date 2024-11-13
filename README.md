@@ -22,6 +22,16 @@ _(Pb1&2 can be easily solved by the use of symbolic link and by avoiding subfold
 
 This project aims to respond to problem number 3 by allowing all links to be converted to the github format or to the vimwiki format.
 
+## Clone and Add wlc as a command with a sym-link in one of your PATH folder.
+
+_(Don't forget to replace <your_path/WLC> by its real value)_
+
+- 1. `git clone https://github.com/alterGNU/WikiLinkConvertor.git <your_path/WLC>`
+- 2. Makes sure that their is not already a command named **wlc** : `which wlc`
+- 3. Look your ${PATH} to see in which folder you want to create your symbolic link to wlc.sh with `echo ${PATH}`
+- 4. Create a sym-link _(Here I choose ~/.local/bin)_ `ln -s <your_path/WLC>/wlc.sh ~/.local/bin/wlc`
+- 5. Now instead of `your_path/WLC/wlc.sh -v path_to/folder` you can use `wlc -v path_to/folder`
+
 ## Convert links from vimwiki to github syntax
 ```bash
 tree ~/path_to/tutu
@@ -30,7 +40,7 @@ tree ~/path_to/tutu
   └── file2.md
 1 directory, 2 files
 
-./wlc.sh -g ~/path_to/tutu
+wlc -g ~/path_to/tutu
 --------------------------
 ✅ tutu/file1.md, line 3: [link to file2](file2.md) 🔄 [link to file2](https://github.com/alterGNU/tutu/wiki/file2)
 ✅ tutu/file2.md, line 5: [link to file1](file1.md) 🔄 [link to file1](https://github.com/alterGNU/tutu/wiki/file1)
@@ -39,7 +49,7 @@ tree ~/path_to/tutu
 🟫 tutu/file2.md, line 9: [link to a nonexisting file](not_a_file) 🟤not a file in GITMODE🟤 
 --------------------------
 
-./wlc.sh --github ~/path_to/tutu
+wlc --github ~/path_to/tutu
 --------------------------
 🟦 tutu/Home.md, line 3: [link to file2](https://github.com/alterGNU/tutu/wiki/file2) 🔵already in GITHUB LINK SYNTAX🔵 
 🟦 tutu/prem.md, line 5: [link to file1](https://github.com/alterGNU/tutu/wiki/file1) 🔵already in GITHUB LINK SYNTAX🔵 
@@ -51,7 +61,7 @@ tree ~/path_to/tutu
 
 ## Convert links from github to vimwiki syntax
 ```bash
-./wlc.sh --vimwiki ~/path_to/tutu
+wlc --vimwiki ~/path_to/tutu
 --------------------------
 ✅ tutu/Home.md, line 3: [link to file2](https://github.com/alterGNU/tutu/wiki/file2) 🔄 [link to file2](file2.md)
 ✅ tutu/prem.md, line 5: [link to file1](https://github.com/alterGNU/tutu/wiki/file1) 🔄 [link to file1](file1.md)
@@ -60,7 +70,7 @@ tree ~/path_to/tutu
 🟫 tutu/prem.md, line 9: [link to a nonexisting file](not_a_file) 🟤not a file in VIMMODE🟤
 --------------------------
 
-./wlc.sh -v ~/path_to/tutu
+wlc -v ~/path_to/tutu
 --------------------------
 🟦 tutu/Home.md, line 3: [link to file2](file2.md) 🔵already in VIMWIKI LINK SYNTAX🔵 
 🟦 tutu/prem.md, line 5: [link to file1](file1.md) 🔵already in VIMWIKI LINK SYNTAX🔵 
