@@ -74,6 +74,8 @@ tree ~/path_to/tutu
 - **wlc.sh will not work and will print its usage if:**
     - argC != 2:script need 2arguments argV[0]=**mode**, argV[1]=**path_to/folder**
     - argV[0]:mode   **IS UNKNOWN** _(only: '-v' or '--vimwiki' or '-g' or '--gitub')_
+        - '-v' == '--vimwiki'
+        - '-g' == '--github'
     - argV[1]:folder **IS NOT A FOLDER**
     - argV[1]:folder **IS NOT** a git repo _(no .git/)_
     - argV[1]:folder **DO NOT HAVE A REMOTE URL** _(no url set)_
