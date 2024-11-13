@@ -26,11 +26,26 @@ This project aims to respond to problem number 3 by allowing all links to be con
 
 _(Don't forget to replace <your_path/WLC> by its real value)_
 
-- 1. `git clone https://github.com/alterGNU/WikiLinkConvertor.git <your_path/WLC>`
-- 2. Makes sure that their is not already a command named **wlc** : `which wlc`
-- 3. Look your ${PATH} to see in which folder you want to create your symbolic link to wlc.sh with `echo ${PATH}`
-- 4. Create a sym-link _(Here I choose ~/.local/bin)_ `ln -s <your_path/WLC>/wlc.sh ~/.local/bin/wlc`
-- 5. Now instead of `your_path/WLC/wlc.sh -v path_to/folder` you can use `wlc -v path_to/folder`
+- clone the repo:
+    ```
+    git clone https://github.com/alterGNU/WikiLinkConvertor.git <your_path/WLC>
+    ```
+- Makes sure that their is not a command named **wlc**:
+    ```
+    which wlc
+    ```
+- Look at your ${PATH} and choose in which folder you want to create your symbolic link to wlc.sh with:
+    ```
+    echo ${PATH}
+    ```
+- Create a sym-link _(Here I choose ~/.local/bin)_:
+    ```
+    ln -s <your_path/WLC>/wlc.sh ~/.local/bin/wlc
+    ```
+- Now instead of `your_path/WLC/wlc.sh -v path_to/folder` you can use:
+    ```
+    wlc -v path_to/folder
+    ```
 
 ## Convert links from vimwiki to github syntax
 ```bash
