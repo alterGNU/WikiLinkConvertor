@@ -28,7 +28,6 @@ tree ~/path_to/tutu
 ~/path_to/tutu
   ├── file1.md
   └── file2.md
-
 1 directory, 2 files
 
 ./wlc.sh -g ~/path_to/tutu
@@ -39,11 +38,13 @@ tree ~/path_to/tutu
 🟫 tutu/file2.md, line 8: [link to a nonexisting wiki page](https://github.com/alterGNU/tutu/wiki/not_a_page) 🟤not a file in GITMODE🟤 
 🟫 tutu/file2.md, line 9: [link to a nonexisting file](not_a_file) 🟤not a file in GITMODE🟤 
 --------------------------
+
 ./wlc.sh --github ~/path_to/tutu
-🟦 tutu/Home.md, line 3: [prem](https://github.com/alterGNU/MakeCustomDesktopLauncher/wiki/prem) 🔵already in GITHUB LINK SYNTAX🔵 
-🟦 tutu/prem.md, line 5: [Back home](https://github.com/alterGNU/MakeCustomDesktopLauncher/wiki/home) 🔵already in GITHUB LINK SYNTAX🔵 
+--------------------------
+🟦 tutu/Home.md, line 3: [link to file2](https://github.com/alterGNU/tutu/wiki/file2) 🔵already in GITHUB LINK SYNTAX🔵 
+🟦 tutu/prem.md, line 5: [link to file1](https://github.com/alterGNU/tutu/wiki/file1) 🔵already in GITHUB LINK SYNTAX🔵 
 🟫 tutu/prem.md, line 7: [random weblink](https://www.google.com) 🟤not a file in GITMODE🟤 
-🟫 tutu/prem.md, line 8: [link to a nonexisting wiki page](https://github.com/alterGNU/MakeCustomDesktopLauncher/wiki/not_a_page) 🟤not a file in GITMODE🟤 
+🟫 tutu/prem.md, line 8: [link to a nonexisting wiki page](https://github.com/alterGNU/tutu/wiki/not_a_page) 🟤not a file in GITMODE🟤 
 🟫 tutu/prem.md, line 9: [link to a nonexisting file](not_a_file) 🟤not a file in GITMODE🟤 
 --------------------------
 ```
@@ -52,18 +53,19 @@ tree ~/path_to/tutu
 ```bash
 ./wlc.sh --vimwiki ~/path_to/tutu
 --------------------------
-✅ tutu/Home.md, line 3: [prem](https://github.com/alterGNU/MakeCustomDesktopLauncher/wiki/prem) 🔄 [prem](prem.md)
-✅ tutu/prem.md, line 5: [Back home](https://github.com/alterGNU/MakeCustomDesktopLauncher/wiki/home) 🔄 [Back home](Home.md)
+✅ tutu/Home.md, line 3: [link to file2](https://github.com/alterGNU/tutu/wiki/file2) 🔄 [link to file2](file2.md)
+✅ tutu/prem.md, line 5: [link to file1](https://github.com/alterGNU/tutu/wiki/file1) 🔄 [link to file1](file1.md)
 🟫 tutu/prem.md, line 7: [random weblink](https://www.google.com) 🟤not a file in VIMMODE🟤
-🟫 tutu/prem.md, line 8: [link to a nonexisting wiki page](https://github.com/alterGNU/MakeCustomDesktopLauncher/wiki/not_a_page) 🟤not a file in VIMMODE🟤
+🟫 tutu/prem.md, line 8: [link to a nonexisting wiki page](https://github.com/alterGNU/tutu/wiki/not_a_page) 🟤not a file in VIMMODE🟤
 🟫 tutu/prem.md, line 9: [link to a nonexisting file](not_a_file) 🟤not a file in VIMMODE🟤
 --------------------------
+
 ./wlc.sh -v ~/path_to/tutu
 --------------------------
-🟦 tutu/Home.md, line 3: [prem](prem.md) 🔵already in VIMWIKI LINK SYNTAX🔵 
-🟦 tutu/prem.md, line 5: [Back home](Home.md) 🔵already in VIMWIKI LINK SYNTAX🔵 
+🟦 tutu/Home.md, line 3: [link to file2](file2.md) 🔵already in VIMWIKI LINK SYNTAX🔵 
+🟦 tutu/prem.md, line 5: [link to file1](file1.md) 🔵already in VIMWIKI LINK SYNTAX🔵 
 🟫 tutu/prem.md, line 7: [random weblink](https://www.google.com) 🟤not a file in VIMMODE🟤
-🟫 tutu/prem.md, line 8: [link to a nonexisting wiki page](https://github.com/alterGNU/MakeCustomDesktopLauncher/wiki/not_a_page) 🟤not a file in VIMMODE🟤
+🟫 tutu/prem.md, line 8: [link to a nonexisting wiki page](https://github.com/alterGNU/tutu/wiki/not_a_page) 🟤not a file in VIMMODE🟤
 🟫 tutu/prem.md, line 9: [link to a nonexisting file](not_a_file) 🟤not a file in VIMMODE🟤
 --------------------------
 ```
