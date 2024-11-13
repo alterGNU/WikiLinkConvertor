@@ -121,8 +121,8 @@ replace_links()
 # ==================================================================================================
 # =[ CHECK ARGUMENTS ]==============================================================================
 [[ ${#} -ne 2 ]] && usage "Wrong nb of argument, script need 2args and ${#} was given" 2
-[[ ! -d ${!#} ]] && usage "Last arg \"${!#}\" is not a folder" 3
-[[ ! -d "${ABS_PATH}/.git" ]] && usage "Last arg \"${!#}\" is not git repo." 4
+[[ ! -d ${ABS_PATH} ]] && usage "Last arg \"${FOLDNAME}\" is not a folder" 3
+[[ ! -d "${ABS_PATH}/.git" ]] && usage "Last arg \"${FOLDNAME}\" is not git repo." 4
 # =[ SET MODE ]=====================================================================================
 case "${1}" in
     -g|--github) GITMODE="ok" ;; 

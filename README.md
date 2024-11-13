@@ -40,7 +40,7 @@ _(Don't forget to replace <your_path/WLC> by its real value)_
     ```
 - Create a sym-link _(Here I choose ~/.local/bin)_:
     ```
-    ln -s <your_path/WLC>/wlc.sh ~/.local/bin/wlc
+    ln -s <your_path/WLC>/wlc.sh ~/.local/bin/wlc && source ~/.zshrc
     ```
 - Now instead of `your_path/WLC/wlc.sh -v path_to/folder` you can use:
     ```
