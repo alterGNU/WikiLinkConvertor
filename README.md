@@ -22,7 +22,7 @@ _(Pb1&2 can be easily solved by the use of symbolic link and by avoiding subfold
 
 This project aims to respond to problem number 3 by allowing all links to be converted to the github format or to the vimwiki format.
 
-## Convert from vimwiki to github syntax
+## Convert links from vimwiki to github syntax
 ```bash
 tree ~/path_to/tutu
 ~/path_to/tutu
@@ -49,7 +49,7 @@ tree ~/path_to/tutu
 --------------------------
 ```
 
-## Convert from github to vimwiki syntax
+## Convert links from github to vimwiki syntax
 ```bash
 ./wlc.sh --vimwiki ~/path_to/tutu
 --------------------------
@@ -69,3 +69,12 @@ tree ~/path_to/tutu
 🟫 tutu/prem.md, line 9: [link to a nonexisting file](not_a_file) 🟤not a file in VIMMODE🟤
 --------------------------
 ```
+
+## Notes
+- **wlc.sh will not work and will print its usage if:**
+    - argC != 2:script need 2arguments argV[0]=**mode**, argV[1]=**path_to/folder**
+    - argV[0]:mode   **IS UNKNOWN** _(only: '-v' or '--vimwiki' or '-g' or '--gitub')_
+    - argV[1]:folder **IS NOT A FOLDER**
+    - argV[1]:folder **IS NOT** a git repo _(no .git/)_
+    - argV[1]:folder **DO NOT HAVE A REMOTE URL** _(no url set)_
+    - argV[1]:folder **THE REMOTE URL IS NOT A GITHUB WIKI REPO** _(repo do not end with tutu.wiki.git)_
