@@ -85,7 +85,7 @@ replace_links()
         if [[ ${extract_link} =~ ${URL} ]];then
             if [[ -n "${found_file}" ]]; then
                 local new_value="$(basename ${found_file})"
-                echo -e "✅ ${V0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🔄 [${extract_name}](${new_value})${E}"
+                echo -e "✅ ${V0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link})${E} 🔄 [${extract_name}](${new_value})${E}"
                 sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
             else
                 echo -e "🟫 ${M0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🟤not a file in VIMMODE${E}🟤"
@@ -99,9 +99,9 @@ replace_links()
         fi
     else # SEARCH markdown-syntax TO CONVERT INTO html-syntax
         if [[ -n "${found_link}" ]]; then
-            local new_filename="${extract_link%%\.*}"
+            local new_filename="${extract_link%\.*}"
             local new_value="${URL}${new_filename,,}"
-            echo -e "✅ ${V0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🔄 [${extract_name}](${new_value})"
+            echo -e "✅ ${V0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🔄 [${extract_name}](${new_value})${E}"
             sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
         else
             if [[ ( "${extract_link}" =~ "${URL}" ) && ( -n ${found_file} ) ]];then
