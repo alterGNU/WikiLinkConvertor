@@ -85,7 +85,7 @@ replace_links()
         if [[ ${extract_link} =~ ${URL} ]];then
             if [[ -n "${found_file}" ]]; then
                 local new_value="$(basename ${found_file})"
-                echo -e "✅ ${V0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link})${E} 🔄 [${extract_name}](${new_value})${E}"
+                echo -e "✅ ${V0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🔄 [${extract_name}](${new_value})${E}"
                 sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
             else
                 echo -e "🟫 ${M0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🟤not a file in VIMMODE${E}🟤"
