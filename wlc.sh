@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
- 
 # ============================================================================================================
 # This script convert switch markdown links of github project wikis between:
 #   - github wiki syntax  : [...](github.com/<userName>/<projectName>/<pageName>)
@@ -8,11 +7,12 @@
 #
 #
 # TODO
-# - [ ] Check if folder has no modifications compared to its last commit (git status).
-# - [ ] Manage link to paragraphe.
+# - [X] Manage link to paragraphe.
+# - [X] Manage 2 links in the same line.
 # ============================================================================================================
 
 # =[ VAR ]====================================================================================================
+LEN=120
 # -[ MODE ]---------------------------------------------------------------------------------------------------
 GITMODE=""
 VIMMODE=""
@@ -22,11 +22,31 @@ R0="\033[0;31m"  # START RED
 B0="\033[0;36m"  # START BLUE
 V0="\033[0;32m"  # START GREEN
 M0="\033[0;33m"  # START BROWN
+Y0="\033[0;93m"  # START BROWN
 # -[ PATH ]---------------------------------------------------------------------------------------------------
 ABS_PATH=""
 FOLDNAME=""
 
 # =[ FCTS ]===================================================================================================
+# -[ GET_REAL_LEN() ]-----------------------------------------------------------------------------------------
+get_real_len() { echo $(echo -en "${1}" | sed 's/\x1b\[[0-9;]*m//g' | wc -m); }
+# -[ PRINT N TIMES ]------------------------------------------------------------------------------------------
+# print arg1 arg2 times 
+pnt() { for i in $(seq 0 $((${2})));do echo -en ${1};done;}
+# -[ PRINT LINK LINE ]----------------------------------------------------------------------------------------
+print_link_line()
+{
+    local s1=$(get_real_len "${1}")
+    local s2=$(get_real_len "${2}")
+    local nb_space=$((LEN - s1 - s2))
+    if [[ ${nb_space} -gt 0 ]];then
+        echo -en "${1}"
+        pnt "." ${nb_space}
+        echo -en "${2}\n"
+    else
+        echo -e "${1}${2}"
+    fi
+}
 # -[ USAGE ]--------------------------------------------------------------------------------------------------
 # print usage with specific error message 'arg1' then exit with 'arg2' (if no arg2, default value = 42)
 usage()
@@ -65,53 +85,56 @@ get_url()
 # set all find link to wiki format depending on active mode.
 replace_links()
 {
-    local filename=$(basename $1)
-    echo ${1} | while read -r file; do
-    sed -n -E '/\[.*\]\(.*\)/{
-    =;   # print line number
-    p    # print line
-    }' "${file}" | while read -r line_number; do
-    read -r matched_line
-    local extract_name=${matched_line#*[}
-    extract_name=${extract_name%%]*}
-    local extract_link=${matched_line#*(}
-    extract_link=${extract_link%%)*}
-    local suffixe="${extract_link#${URL}}"
-    local found_file=$(find "${ABS_PATH}" -type f -iname "${suffixe}.md" -print -quit)
-    local found_link=$(find "${ABS_PATH}" -type f -iname "${extract_link}" -print -quit)
+    # HEADER
+    local title="- ${FOLDNAME}/$(basename ${1}) :" && echo -n ${title} && pnt "-" $((LEN - ${#title})) && echo
 
-    # SEARCH html-syntax TO CONVERT INTO markdown-syntax
-    if [[ -n "${VIMMODE}" ]];then
-        if [[ ${extract_link} =~ ${URL} ]];then
-            if [[ -n "${found_file}" ]]; then
-                local new_value="$(basename ${found_file})"
-                echo -e "✅ ${V0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🔄 [${extract_name}](${new_value})${E}"
-                sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
-            else
-                echo -e "🟫 ${M0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🟤not a file in VIMMODE${E}🟤"
+    echo ${1} | while read -r file; do
+    sed -n -E '/\[.*\]\(.*\)/{=;p}' "${file}" | while read -r line_number; do read -r matched_line
+        echo "${matched_line}" | awk '{ while (match($0, /\[[^]]+\]\([^)]*\)/)) { print substr($0, RSTART, RLENGTH); $0 = substr($0, RSTART + RLENGTH); } }' | while read -r link; do
+            local extract_name=${link#*[}
+            extract_name=${extract_name%%]*}
+            local extract_link=${link#*(}
+            extract_link=${extract_link%%)*}
+            local suffixe="${extract_link#${URL}}"
+            local found_file=$(find "${ABS_PATH}" -type f -iname "${suffixe}.md" -print -quit)
+            local found_link=$(find "${ABS_PATH}" -type f -iname "${extract_link}" -print -quit)
+            # SEARCH html-syntax TO CONVERT INTO markdown-syntax
+            if [[ ${extract_link:0:1} == "#" ]];then
+                print_link_line "$(printf "  - 🟨 ${Y0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is a link to a title.${E}"
+            elif [[ ( ${extract_link:0:3} == "www" ) || ( ( ${extract_link:0:3} == "htt" ) && ( ! ${extract_link} =~ ${URL} ) ) ]];then
+                print_link_line "$(printf "  - 🟦 ${B0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is a link to a webpage.${E}"
+            elif [[ -n "${VIMMODE}" ]];then
+                if [[ ${extract_link} =~ ${URL} ]];then
+                    if [[ -n ${found_file} ]];then
+                        local new_value="$(basename ${found_file})"
+                        print_link_line "$(printf "  - ✅ ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "➡️ [${extract_name}](${new_value})${E}"
+                        sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
+                    else
+                        print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number})" "is a github-html-link to a a non-existing-page${E}"
+                    fi
+                else
+                    if [[ -n "${found_link}" ]];then
+                        print_link_line "$(printf "  - 🟩 ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is already in MARKDOWN-SYNTAX.${E}"
+                    else
+                        print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "not a link to an existing file in VIMMODE${E}"
+                    fi
+                fi
+            else # SEARCH markdown-syntax TO CONVERT INTO html-syntax
+                if [[ -n "${found_link}" ]]; then
+                    local new_filename="${extract_link%\.*}"
+                    local new_value="${URL}${new_filename,,}"
+                    print_link_line "$(printf "  - ✅ ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "➡️ [${extract_name}](${new_value})${E}"
+                    sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
+                else
+                    if [[ ( "${extract_link}" =~ "${URL}" ) && ( -n ${found_file} ) ]];then
+                        print_link_line "$(printf "  - 🟩 ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is already in HTML-SYNTAX.${E}"
+                    else
+                        print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "not a file in GITMODE${E}"
+                    fi
+                fi
             fi
-        else
-            if [[ -n "${found_link}" ]];then
-                echo -e "🟦 ${B0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🔵already in VIMWIKI LINK SYNTAX${E}🔵 "
-            else
-                echo -e "🟫 ${M0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🟤not a file in VIMMODE${E}🟤"
-            fi
-        fi
-    else # SEARCH markdown-syntax TO CONVERT INTO html-syntax
-        if [[ -n "${found_link}" ]]; then
-            local new_filename="${extract_link%\.*}"
-            local new_value="${URL}${new_filename,,}"
-            echo -e "✅ ${V0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🔄 [${extract_name}](${new_value})${E}"
-            sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
-        else
-            if [[ ( "${extract_link}" =~ "${URL}" ) && ( -n ${found_file} ) ]];then
-                echo -e "🟦 ${B0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🔵already in GITHUB LINK SYNTAX${E}🔵 "
-            else
-                echo -e "🟫 ${M0}${FOLDNAME}/${filename}, line ${line_number}: [${extract_name}](${extract_link}) 🟤not a file in GITMODE${E}🟤 "
-            fi
-        fi
-    fi
-    done
+            done
+        done
     done
 }
 
@@ -136,8 +159,10 @@ URL=$(get_url)
 [[ -z "${URL}" ]] && usage "git repo \"${FOLDNAME}\" has no remote " 6
 [[ "${URL}" == "0" ]] && usage "git repo \"${FOLDNAME}\" is not a github wiki repo" 7
 # =[ SEARCH FILES FOR LINKS ]=================================================================================
-echo "--------------------------"
+pnt '=' ${LEN} && echo
+[[ ${GITMODE} == "ok" ]] && echo -e "CONVERT FROM MARKDOWN TO HTML" || echo -e "CONVERT FROM HTML TO MARKDOWN"
+pnt '=' ${LEN} && echo
 for file in $(ls ${ABS_PATH});do
     [[ ${file} == *.md ]] && replace_links "${ABS_PATH}/${file}"
 done
-echo "--------------------------"
+pnt "=" ${LEN}
