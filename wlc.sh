@@ -9,6 +9,8 @@
 # TODO
 # - [X] Manage link to paragraphe.
 # - [X] Manage 2 links in the same line.
+# - [X] Manage description having bracket [toto9(titi)](tutu) -> extract_link=tutu and not titi
+# - [ ] add Quiet version (-q=0 print all, -q=1 print only match, -q=2 dont print anything)
 # ============================================================================================================
 
 # =[ VAR ]====================================================================================================
@@ -90,11 +92,7 @@ replace_links()
 
     echo ${1} | while read -r file; do
     sed -n -E '/\[.*\]\(.*\)/{=;p}' "${file}" | while read -r line_number; do read -r matched_line
-        echo "${matched_line}" | awk '{ while (match($0, /\[[^]]+\]\([^)]*\)/)) { print substr($0, RSTART, RLENGTH); $0 = substr($0, RSTART + RLENGTH); } }' | while read -r link; do
-            local extract_name=${link#*[}
-            extract_name=${extract_name%%]*}
-            local extract_link=${link#*(}
-            extract_link=${extract_link%%)*}
+        echo "${matched_line}" | awk ' { while (match($0, /\[([^\]]+)\]\(([^)]+)\)/, arr)) { print arr[1] "\n" arr[2]; $0 = substr($0, RSTART + RLENGTH); } }' | while read -r extract_name ; do read -r extract_link
             local suffixe="${extract_link#${URL}}"
             local found_file=$(find "${ABS_PATH}" -type f -iname "${suffixe}.md" -print -quit)
             local found_link=$(find "${ABS_PATH}" -type f -iname "${extract_link}" -print -quit)
