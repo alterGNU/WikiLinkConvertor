@@ -7,6 +7,7 @@
 #
 #
 # TODO
+# - [X] Manage link to insert image. 1[](...)
 # - [X] Manage link to paragraphe.
 # - [X] Manage 2 links in the same line.
 # - [X] Manage description having bracket [toto9(titi)](tutu) -> extract_link=tutu and not titi
@@ -17,7 +18,7 @@
 LEN=120
 # -[ MODE ]---------------------------------------------------------------------------------------------------
 GITMODE=""
-VIMMODE=""
+MDMODE=""
 # -[ COLOR BALISE ]-------------------------------------------------------------------------------------------
 E="\033[0m"      # END color balise
 R0="\033[0;31m"  # START RED
@@ -55,9 +56,9 @@ usage()
 {
     local txt=${1}
     [[ ${#} -eq 2 ]] && local exit_nb=${2} || local exit_nb=42
-    echo -e "${R0}Wrong Usage, err_${exit_nb}${R0}: ${txt}${E}\n${V0}Usage${E}:  \`${B0}./wlc ${M0}<-g(or)-v> <path_to_wiki_folder>${E}\`"
+    echo -e "${R0}Wrong Usage, err_${exit_nb}${R0}: ${txt}${E}\n${V0}Usage${E}:  \`${B0}./wlc ${M0}<-g(or)-m> <path_to_wiki_folder>${E}\`"
     echo -e "-${B0} ./wlc ${M0}-g(or --github)  ${M0}<git_wiki_folder>${E}: In ${M0}<git_wiki_folder>${E} convert every markdown link to github syntax (from file to html)"
-    echo -e "-${B0} ./wlc ${M0}-v(or --vimwiki) ${M0}<git_wiki_folder>${E}: In ${M0}<git_wiki_folder>${E} convert every markdown link to vimwiki syntax (from html to file)\n"
+    echo -e "-${B0} ./wlc ${M0}-m(or --markdown) ${M0}<git_wiki_folder>${E}: In ${M0}<git_wiki_folder>${E} convert every markdown link to vimwiki syntax (from html to file)\n"
     exit ${exit_nb}
 }
 
@@ -91,46 +92,54 @@ replace_links()
     local title="- ${FOLDNAME}/$(basename ${1}) :" && echo -n ${title} && pnt "-" $((LEN - ${#title})) && echo
 
     echo ${1} | while read -r file; do
-    sed -n -E '/\[.*\]\(.*\)/{=;p}' "${file}" | while read -r line_number; do read -r matched_line
-        echo "${matched_line}" | awk ' { while (match($0, /\[([^\]]+)\]\(([^)]+)\)/, arr)) { print arr[1] "\n" arr[2]; $0 = substr($0, RSTART + RLENGTH); } }' | while read -r extract_name ; do read -r extract_link
-            local suffixe="${extract_link#${URL}}"
-            local found_file=$(find "${ABS_PATH}" -type f -iname "${suffixe}.md" -print -quit)
-            local found_link=$(find "${ABS_PATH}" -type f -iname "${extract_link}" -print -quit)
-            # SEARCH html-syntax TO CONVERT INTO markdown-syntax
-            if [[ ${extract_link:0:1} == "#" ]];then
-                print_link_line "$(printf "  - 🟨 ${Y0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is a link to a title.${E}"
-            elif [[ ( ${extract_link:0:3} == "www" ) || ( ( ${extract_link:0:3} == "htt" ) && ( ! ${extract_link} =~ ${URL} ) ) ]];then
-                print_link_line "$(printf "  - 🟦 ${B0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is a link to a webpage.${E}"
-            elif [[ -n "${VIMMODE}" ]];then
-                if [[ ${extract_link} =~ ${URL} ]];then
-                    if [[ -n ${found_file} ]];then
-                        local new_value="$(basename ${found_file})"
+        sed -n -E '/\[.*\]\(.*\)/{=;p}' "${file}" | while read -r line_number; do read -r matched_line
+            # Check link to insert images ![...](..)
+            echo "${matched_line}" | awk ' { while (match($0, /!\[([^\]]*)\]\(([^)]+)\)/, arr)) { print arr[1] "\n" arr[2]; $0 = substr($0, RSTART + RLENGTH); } }' | while read -r extract_name ; do read -r extract_link
+                local suffixe="${extract_link#${URL}}"
+                local found_file=$(find "${ABS_PATH}" -type f -iname "${suffixe}.md" -print -quit)
+                local found_link=$(find "${ABS_PATH}" -type f -iname "${extract_link}" -print -quit)
+                print_link_line "$(printf "  - 🟨 ${Y0}line-%03d: ![${extract_name}](${extract_link})" ${line_number} )" "is a link to an image.${E}"
+            done
+            # Anything but ![]()
+            echo "${matched_line}" | awk ' { while (match($0, /[^!]\[([^\]]+)\]\(([^)]+)\)/, arr)) { print arr[1] "\n" arr[2]; $0 = substr($0, RSTART + RLENGTH); } }' | while read -r extract_name ; do read -r extract_link
+                local suffixe="${extract_link#${URL}}"
+                local found_file=$(find "${ABS_PATH}" -type f -iname "${suffixe}.md" -print -quit)
+                local found_link=$(find "${ABS_PATH}" -type f -iname "${extract_link}" -print -quit)
+                # SEARCH html-syntax TO CONVERT INTO markdown-syntax
+                if [[ ${extract_link:0:1} == "#" ]];then
+                    print_link_line "$(printf "  - 🟨 ${Y0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is a link to a title.${E}"
+                elif [[ ( ${extract_link:0:3} == "www" ) || ( ( ${extract_link:0:3} == "htt" ) && ( ! ${extract_link} =~ ${URL} ) ) ]];then
+                    print_link_line "$(printf "  - 🟦 ${B0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is a link to a webpage.${E}"
+                elif [[ -n "${MDMODE}" ]];then
+                    if [[ ${extract_link} =~ ${URL} ]];then
+                        if [[ -n ${found_file} ]];then
+                            local new_value="$(basename ${found_file})"
+                            print_link_line "$(printf "  - ✅ ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "➡️ [${extract_name}](${new_value})${E}"
+                            sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
+                        else
+                            print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number})" "is a github-html-link to a a non-existing-page${E}"
+                        fi
+                    else
+                        if [[ -n "${found_link}" ]];then
+                            print_link_line "$(printf "  - 🟩 ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is already in MARKDOWN-SYNTAX.${E}"
+                        else
+                            print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "not a link to an existing file in MDMODE${E}"
+                        fi
+                    fi
+                else # SEARCH markdown-syntax TO CONVERT INTO html-syntax
+                    if [[ -n "${found_link}" ]]; then
+                        local new_filename="${extract_link%\.*}"
+                        local new_value="${URL}${new_filename,,}"
                         print_link_line "$(printf "  - ✅ ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "➡️ [${extract_name}](${new_value})${E}"
                         sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
                     else
-                        print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number})" "is a github-html-link to a a non-existing-page${E}"
-                    fi
-                else
-                    if [[ -n "${found_link}" ]];then
-                        print_link_line "$(printf "  - 🟩 ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is already in MARKDOWN-SYNTAX.${E}"
-                    else
-                        print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "not a link to an existing file in VIMMODE${E}"
+                        if [[ ( "${extract_link}" =~ "${URL}" ) && ( -n ${found_file} ) ]];then
+                            print_link_line "$(printf "  - 🟩 ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is already in HTML-SYNTAX.${E}"
+                        else
+                            print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "not a file in GITMODE${E}"
+                        fi
                     fi
                 fi
-            else # SEARCH markdown-syntax TO CONVERT INTO html-syntax
-                if [[ -n "${found_link}" ]]; then
-                    local new_filename="${extract_link%\.*}"
-                    local new_value="${URL}${new_filename,,}"
-                    print_link_line "$(printf "  - ✅ ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "➡️ [${extract_name}](${new_value})${E}"
-                    sed -i "${line_number}s|\[${extract_name}\](${extract_link})|[${extract_name}](${new_value})|" "${file}"
-                else
-                    if [[ ( "${extract_link}" =~ "${URL}" ) && ( -n ${found_file} ) ]];then
-                        print_link_line "$(printf "  - 🟩 ${V0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "is already in HTML-SYNTAX.${E}"
-                    else
-                        print_link_line "$(printf "  - 🟥 ${R0}line-%03d: [${extract_name}](${extract_link})" ${line_number} )" "not a file in GITMODE${E}"
-                    fi
-                fi
-            fi
             done
         done
     done
@@ -149,7 +158,7 @@ FOLDNAME=$(basename ${ABS_PATH})
 # =[ SET MODE ]===============================================================================================
 case "${1}" in
     -g|--github) GITMODE="ok" ;; 
-    -v|--vimwiki) VIMMODE="ok";;
+    -m|--markdown) MDMODE="ok";;
     *) usage "arg1 is not an option: \"${1}\"" 5 ;;
 esac
 # =[ GET_URL ]================================================================================================
