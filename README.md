@@ -24,7 +24,7 @@ This project aims to respond to problem number 3 by allowing all links to be con
 
 ## Clone and Add wlc as a command with a sym-link in one of your PATH folder.
 
-_(Don't forget to replace <your_path/WLC> by its real value)_
+_(Don't forget to replace `<your_path/WLC>` by its real value)_
 
 - clone the repo:
     ```
