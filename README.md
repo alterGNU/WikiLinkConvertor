@@ -23,9 +23,7 @@ _(Pb1&2 can be easily solved by the use of symbolic link and by avoiding subfold
 This project aims to respond to problem number 3 by allowing all links to be converted to the github format or to the vimwiki format.
 
 ## Clone and Add wlc as a command with a sym-link in one of your PATH folder.
-
 _(Don't forget to replace `<your_path/WLC>` by its real value)_
-
 - clone the repo:
     ```
     git clone https://github.com/alterGNU/WikiLinkConvertor.git <your_path/WLC>
